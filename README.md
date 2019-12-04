@@ -1,0 +1,2 @@
+# rtbench
+Ray Tracing Benchmark
