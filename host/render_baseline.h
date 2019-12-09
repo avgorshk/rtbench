@@ -1,5 +1,5 @@
-#ifndef RTBENCH_RENDER_H_
-#define RTBENCH_RENDER_H_
+#ifndef RTBENCH_HOST_RENDER_BASELINE_H_
+#define RTBENCH_HOST_RENDER_BASELINE_H_
 
 #include <algorithm>
 #include <vector>
@@ -8,10 +8,11 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#include "light.h"
-#include "sphere.h"
+#include "../light.h"
+#include "../sphere.h"
 
-namespace render {
+namespace host {
+namespace baseline {
 
 inline Vector Reflect(const Vector& i, const Vector& n) {
   return i - n * 2.0f * (i * n);
@@ -27,6 +28,26 @@ inline Vector Refract(const Vector& i, const Vector& n,
     i * eta + n * (eta * cosi - sqrtf(k));
 }
 
+inline bool RayIntersect(const Sphere& sphere, const Vector& orig,
+                         const Vector& dir, float& t0) {
+  Vector L = sphere.center() - orig;
+  float tca = L * dir;
+  float d2 = L * L - tca * tca;
+  if (d2 > sphere.radius()* sphere.radius()) {
+    return false;
+  }
+  float thc = sqrtf(sphere.radius() * sphere.radius() - d2);
+  t0 = tca - thc;
+  float t1 = tca + thc;
+  if (t0 < 0) {
+    t0 = t1;
+  }
+  if (t0 < 0) {
+    return false;
+  }
+  return true;
+}
+
 inline bool SceneIntersect(const Vector& orig, const Vector& dir,
                            const std::vector<Sphere>& spheres,
                            Vector& hit, Vector& norm,
@@ -34,7 +55,7 @@ inline bool SceneIntersect(const Vector& orig, const Vector& dir,
   float spheres_dist = std::numeric_limits<float>::max();
   for (size_t i = 0; i < spheres.size(); i++) {
     float dist_i = 0.0f;
-    if (spheres[i].RayIntersect(orig, dir, dist_i) && dist_i < spheres_dist) {
+    if (RayIntersect(spheres[i], orig, dir, dist_i) && dist_i < spheres_dist) {
       spheres_dist = dist_i;
       hit = orig + dir * dist_i;
       norm = (hit - spheres[i].center()).Normalize();
@@ -97,7 +118,7 @@ inline Vector CastRay(const Vector& background,
     Material tmpmaterial;
     if (SceneIntersect(shadow_orig, light_dir, spheres,
                        shadow_pt, shadow_n, tmpmaterial) &&
-        (shadow_pt - shadow_orig).norm() < light_distance) {
+                       (shadow_pt - shadow_orig).norm() < light_distance) {
       continue;
     }
 
@@ -107,7 +128,7 @@ inline Vector CastRay(const Vector& background,
       powf(std::max(0.0f, -Reflect(-light_dir, norm) * dir),
            material.specular_exponent()) * lights[i].intensity();
   }
-  
+
   return material.diffuse_color() * diffuse_light_intensity *
     material.albedo().x() + Vector(1., 1., 1.) * specular_light_intensity *
     material.albedo().y() + reflect_color * material.albedo().z() +
@@ -137,6 +158,7 @@ inline void Render(const std::vector<Sphere>& spheres,
   }
 }
 
-} // render
+} // namespace baseline
+} // namespace host
 
-#endif // RTBENCH_RENDER_H_
+#endif // RTBENCH_HOST_RENDER_BASELINE_H_

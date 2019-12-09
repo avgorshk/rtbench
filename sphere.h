@@ -3,29 +3,10 @@
 
 #include "material.h"
 
-struct Sphere {
+class Sphere {
  public:
   Sphere(const Vector& center, float radius, const Material& material)
-      : material_(material), center_(center), radius_(radius) {}
-
-  bool RayIntersect(const Vector& orig, const Vector& dir, float& t0) const {
-    Vector L = center_ - orig;
-    float tca = L * dir;
-    float d2 = L * L - tca * tca;
-    if (d2 > radius_* radius_) {
-      return false;
-    }
-    float thc = sqrtf(radius_ * radius_ - d2);
-    t0 = tca - thc;
-    float t1 = tca + thc;
-    if (t0 < 0) {
-      t0 = t1;
-    }
-    if (t0 < 0) {
-      return false;
-    }
-    return true;
-  }
+    : material_(material), center_(center), radius_(radius) {}
 
   Material material() const {
     return material_;
@@ -39,7 +20,7 @@ struct Sphere {
     return radius_;
   }
 
- private:
+private:
   Material material_;
   Vector center_;
   float radius_;

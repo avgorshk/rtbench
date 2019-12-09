@@ -16,6 +16,9 @@
     <Filter Include="Header Files\external">
       <UniqueIdentifier>{94492c53-8337-43e5-a2cb-80a4dd2c82c6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\host">
+      <UniqueIdentifier>{9126c270-c319-40eb-8a7c-036c095a186c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cc">
@@ -32,9 +35,6 @@
     <ClInclude Include="material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sphere.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -44,8 +44,20 @@
     <ClInclude Include="image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="render.h">
+    <ClInclude Include="device.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="host\render_baseline.h">
+      <Filter>Header Files\host</Filter>
+    </ClInclude>
+    <ClInclude Include="host\render_sequential.h">
+      <Filter>Header Files\host</Filter>
+    </ClInclude>
+    <ClInclude Include="host\host.h">
+      <Filter>Header Files\host</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

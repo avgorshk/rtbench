@@ -5,16 +5,68 @@
 #include <iostream>
 #include <vector>
 
+#include "device.h"
 #include "image.h"
 #include "light.h"
 #include "material.h"
-#include "render.h"
 #include "sphere.h"
 
+const unsigned kFrameCount = 30;
+
+static void usage() {
+  std::cout << "How To Tun: rtbech -d [device] -v [version]" << std::endl;
+  std::cout << "Available Devices:" << std::endl;
+  std::vector<std::string> deviceList = device::GetDeviceList();
+  assert(deviceList.size() > 0);
+  for (size_t i = 0; i < deviceList.size(); ++i) {
+    std::cout << "  [" << i << "] " <<  deviceList[i] << std::endl;
+    std::cout << "  Available Versions:" << std::endl;
+    std::vector<std::string> versionList =
+      device::GetVersionList(static_cast<int>(i));
+    assert(versionList.size() > 0);
+    for (size_t j = 0; j < versionList.size(); ++j) {
+      std::cout << "    [" << j << "] " << versionList[j] << std::endl;
+    }
+  }
+}
+
 int main(int argc, char* argv[]) {
+  int device = -1, version = -1;
+  for (int i = 1; i < argc - 1; ++i) {
+    if (strcmp(argv[i], "-d") == 0) {
+      device = atoi(argv[i + 1]);
+    } else if (strcmp(argv[i], "-v") == 0) {
+      version = atoi(argv[i + 1]);
+    }
+  }
+
+  if (device < 0 || version < 0) {
+    usage();
+    return 0;
+  }
+
+  std::vector<std::string> deviceList = device::GetDeviceList();
+  assert(deviceList.size() > 0);
+  std::vector<std::string> versionList = device::GetVersionList(device);
+  if (versionList.size() == 0) {
+    std::cout << "Invalid device " << device << std::endl;
+    usage();
+    return 0;
+  }
+
+  if (version >= versionList.size()) {
+    std::cout << "Invalid version " << version << " for device " <<
+      device << std::endl;
+    usage();
+    return 0;
+  }
+
+  std::cout << "Target Device: " << deviceList[device] << std::endl;
+  std::cout << "Target Version: " << versionList[version] << std::endl;
+
   int w = 0, h = 0;
-  std::vector<Vector> image;
-  bool loaded = image::Load("input.jpg", w, h, image);
+  std::vector<Vector> input;
+  bool loaded = image::Load("input.jpg", w, h, input);
   if (!loaded) {
     std::cout << "Input image file was not found" << std::endl;
     return 0;
@@ -48,16 +100,27 @@ int main(int argc, char* argv[]) {
   lights.push_back(Light(Vector(30.0f, 50.0f, -25.0f), 1.8f));
   lights.push_back(Light(Vector(30.0f, 20.0f, 30.0f), 1.7f));
 
-  auto start = std::chrono::steady_clock::now();
-  render::Render(spheres, lights, image, w, h);
-  auto end = std::chrono::steady_clock::now();
-  auto elapsed =
-    std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-  std::cout << "Wall Time: " << elapsed.count() << " ms (" <<
-    std::fixed << std::setprecision(2) << 1000.0f /
-    static_cast<float>(elapsed.count()) << " FPS)" << std::endl;
+  std::vector<Vector> output(input.size(), { 0.0f });
 
-  bool saved = image::SavePng("out.png", w, h, image);
+  unsigned wall_time = 0;
+  for (unsigned i = 0; i < kFrameCount; ++i) {
+    std::copy(input.begin(), input.end(), output.begin());
+    auto start = std::chrono::steady_clock::now();
+    bool succeed = device::Render(spheres, lights, output, w, h, device, version);
+    assert(succeed);
+    auto end = std::chrono::steady_clock::now();
+    auto elapsed =
+      std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    wall_time += static_cast<unsigned>(elapsed.count());
+  }
+  
+  std::cout << "Wall Time: " << wall_time << " ms" << std::endl;
+  std::cout << "Time per Frame: " << wall_time / kFrameCount <<
+    " ms" << std::endl;
+  std::cout << "FPS rate: " << std::fixed << std::setprecision(2) <<
+    kFrameCount * 1000.0f / wall_time << std::endl;
+
+  bool saved = image::SavePng("output.png", w, h, output);
   assert(saved);
   return 0;
 }
