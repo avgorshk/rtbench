@@ -26,6 +26,14 @@ class Vector {
   float w() const {
     return w_;
   }
+
+  const float* data() const {
+    return data_;
+  }
+
+  float* data() {
+    return data_;
+  }
   
   Vector& operator=(const Vector& r) {
     x_ = r.x_;
@@ -69,10 +77,15 @@ class Vector {
   }
   
  private:
-  float x_;
-  float y_;
-  float z_;
-  float w_;
+  union {
+    struct alignas(16) {
+      float x_;
+      float y_;
+      float z_;
+      float w_;
+    };
+    alignas(16) float data_[4];
+  };
 };
 
 #endif //RTBENCH_VECTOR_H_

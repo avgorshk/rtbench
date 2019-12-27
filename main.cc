@@ -11,9 +11,9 @@
 #include "material.h"
 #include "sphere.h"
 
-const unsigned kFrameCount = 30;
+const unsigned kFrameCount = 10;
 
-static void usage() {
+static void Usage() {
   std::cout << "How To Tun: rtbech -d [device] -v [version]" << std::endl;
   std::cout << "Available Devices:" << std::endl;
   std::vector<std::string> deviceList = device::GetDeviceList();
@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
   }
 
   if (device < 0 || version < 0) {
-    usage();
+    Usage();
     return 0;
   }
 
@@ -50,14 +50,14 @@ int main(int argc, char* argv[]) {
   std::vector<std::string> versionList = device::GetVersionList(device);
   if (versionList.size() == 0) {
     std::cout << "Invalid device " << device << std::endl;
-    usage();
+    Usage();
     return 0;
   }
 
   if (version >= versionList.size()) {
     std::cout << "Invalid version " << version << " for device " <<
       device << std::endl;
-    usage();
+    Usage();
     return 0;
   }
 
@@ -120,7 +120,16 @@ int main(int argc, char* argv[]) {
   std::cout << "FPS rate: " << std::fixed << std::setprecision(2) <<
     kFrameCount * 1000.0f / wall_time << std::endl;
 
+  std::cout << "Checking for results...";
+  bool same = image::Compare(output, "reference.png");
+  if (!same) {
+    std::cout << "FAIL" << std::endl;
+  } else {
+    std::cout << "OK" << std::endl;
+  }
+
   bool saved = image::SavePng("output.png", w, h, output);
   assert(saved);
+
   return 0;
 }
