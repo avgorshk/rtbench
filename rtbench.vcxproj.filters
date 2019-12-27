@@ -1,81 +1,55 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Header Files\external">
+    <Filter Include="external">
       <UniqueIdentifier>{94492c53-8337-43e5-a2cb-80a4dd2c82c6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\host">
+    <Filter Include="host">
       <UniqueIdentifier>{9126c270-c319-40eb-8a7c-036c095a186c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="host\render_baseline.cc">
-      <Filter>Header Files\host</Filter>
+      <Filter>host</Filter>
     </ClCompile>
     <ClCompile Include="host\render_sequential.cc">
-      <Filter>Header Files\host</Filter>
+      <Filter>host</Filter>
     </ClCompile>
     <ClCompile Include="host\render_avx2.cc">
-      <Filter>Header Files\host</Filter>
+      <Filter>host</Filter>
     </ClCompile>
     <ClCompile Include="host\render_sse.cc">
-      <Filter>Header Files\host</Filter>
+      <Filter>host</Filter>
     </ClCompile>
+    <ClCompile Include="main.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\stb_image_write.h">
-      <Filter>Header Files\external</Filter>
-    </ClInclude>
-    <ClInclude Include="vector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="light.h">
-      <Filter>Header Files</Filter>
+      <Filter>external</Filter>
     </ClInclude>
     <ClInclude Include="external\stb_image.h">
-      <Filter>Header Files\external</Filter>
-    </ClInclude>
-    <ClInclude Include="image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="device.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sphere.h">
-      <Filter>Header Files</Filter>
+      <Filter>external</Filter>
     </ClInclude>
     <ClInclude Include="host\render_baseline.h">
-      <Filter>Header Files\host</Filter>
+      <Filter>host</Filter>
     </ClInclude>
     <ClInclude Include="host\render_sequential.h">
-      <Filter>Header Files\host</Filter>
+      <Filter>host</Filter>
     </ClInclude>
     <ClInclude Include="host\host.h">
-      <Filter>Header Files\host</Filter>
+      <Filter>host</Filter>
     </ClInclude>
     <ClInclude Include="host\render_avx2.h">
-      <Filter>Header Files\host</Filter>
+      <Filter>host</Filter>
     </ClInclude>
     <ClInclude Include="host\render_sse.h">
-      <Filter>Header Files\host</Filter>
+      <Filter>host</Filter>
     </ClInclude>
+    <ClInclude Include="device.h" />
+    <ClInclude Include="image.h" />
+    <ClInclude Include="light.h" />
+    <ClInclude Include="material.h" />
+    <ClInclude Include="sphere.h" />
+    <ClInclude Include="vector.h" />
   </ItemGroup>
 </Project>

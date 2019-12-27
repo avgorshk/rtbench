@@ -102,6 +102,13 @@ int main(int argc, char* argv[]) {
 
   std::vector<Vector> output(input.size(), { 0.0f });
 
+  std::cout << "Warming-up...";
+  std::copy(input.begin(), input.end(), output.begin());
+  bool succeed = device::Render(spheres, lights, output, w, h, device, version);
+  assert(succeed);
+  std::cout << "DONE" << std::endl;
+
+  std::cout << "Computing...";
   unsigned wall_time = 0;
   for (unsigned i = 0; i < kFrameCount; ++i) {
     std::copy(input.begin(), input.end(), output.begin());
@@ -112,7 +119,9 @@ int main(int argc, char* argv[]) {
     auto elapsed =
       std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     wall_time += static_cast<unsigned>(elapsed.count());
+    std::cout << ".";
   }
+  std::cout << std::endl;
   
   std::cout << "Wall Time: " << wall_time << " ms" << std::endl;
   std::cout << "Time per Frame: " << wall_time / kFrameCount <<
