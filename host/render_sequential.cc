@@ -114,7 +114,7 @@ static Vector CastRay(const Vector& background,
     Material tmpmaterial;
     if (SceneIntersect(shadow_orig, light_dir, spheres,
                        shadow_pt, shadow_n, tmpmaterial) &&
-                       (shadow_pt - shadow_orig).norm() < light_distance) {
+                       ((shadow_pt - shadow_orig).norm() < light_distance)) {
       continue;
     }
 

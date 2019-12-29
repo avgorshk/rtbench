@@ -12,40 +12,39 @@
 namespace host {
 namespace sse {
 
-static Vector Reflect(const Vector& i, const Vector& n) {
-  // return i - n * 2.0f * (i * n);
-  __m128 vi = _mm_load_ps(i.data());
-  __m128 vn = _mm_load_ps(n.data());
-  __m128 v2 = _mm_set_ps1(2.0f);
-  __m128 vval = _mm_dp_ps(vi, vn, 0x0FF);
-  vval = _mm_mul_ps(vval, v2);
-  vval = _mm_mul_ps(vval, vn);
-  vval = _mm_sub_ps(vi, vval);
-  Vector result;
-  _mm_store_ps(result.data(), vval);
-  return result;
+inline __m128 Normalize(const __m128& v) {
+  // *this = *this * (1.0f / norm());
+  __m128 vval = _mm_dp_ps(v, v, 0xFF);
+  vval = _mm_sqrt_ps(vval);
+  vval = _mm_div_ps(_mm_set_ps1(1.0f), vval);
+  return _mm_mul_ps(v, vval);
 }
 
-static Vector Refract(const Vector& i, const Vector& n,
+inline __m128 Reflect(const __m128& vi, const __m128& vn) {
+  // return i - n * 2.0f * (i * n);
+  __m128 vval = _mm_dp_ps(vi, vn, 0xFF);
+  vval = _mm_mul_ps(vval, _mm_set_ps1(2.0f));
+  vval = _mm_mul_ps(vval, vn);
+  vval = _mm_sub_ps(vi, vval);
+  return vval;
+}
+
+static __m128 Refract(const __m128& vi, const __m128& vn,
                       const float eta_t, const float eta_i = 1.f) {
 
   // float cosi = -std::max(-1.0f, std::min(1.0f, i * n));
-  __m128 vi = _mm_load_ps(i.data());
-  __m128 vn = _mm_load_ps(n.data());
-  __m128 vcosi = _mm_dp_ps(vi, vn, 0x0FF);
-  alignas(16) float buf[4] = { 0.0f };
-  _mm_store_ps(buf, vcosi);
-  float cosi = -std::max(-1.0f, std::min(1.0f, buf[0]));
+  __m128 vcosi = _mm_dp_ps(vi, vn, 0xFF);
+  float cosi = -std::max(-1.0f, std::min(1.0f, vcosi.m128_f32[0]));
   
   // if (cosi < 0) return Refract(i, -n, eta_i, eta_t);
   if (cosi < 0) {
-    return Refract(i, -n, eta_i, eta_t);
+    return Refract(vi, _mm_sub_ps(_mm_set_ps1(0.0f), vn), eta_i, eta_t);
   }
 
   float eta = eta_i / eta_t;
   float k = 1 - eta * eta * (1 - cosi * cosi);
   if (k < 0) {
-    return  Vector(1.0f, 0.0f, 0.0f);
+    return _mm_set_ps(0.0f, 0.0f, 0.0f, 1.0f);
   } else {
     // return i * eta + n * (eta * cosi - sqrtf(k));
     __m128 veta = _mm_set_ps1(eta);
@@ -54,39 +53,30 @@ static Vector Refract(const Vector& i, const Vector& n,
     __m128 vval = _mm_set_ps1(val);
     vval = _mm_mul_ps(vn, vval);
     vres = _mm_add_ps(vres, vval);
-    Vector result;
-    _mm_store_ps(result.data(), vres);
-    return result;
+    return vres;
   }
 }
 
-static bool RayIntersect(const Sphere& sphere, const Vector& orig,
-                         const Vector& dir, float& t0) {
-  alignas(16) float buf[4] = { 0.0f };
-  
+static bool RayIntersect(const Sphere& sphere, const __m128& vorig,
+                         const __m128& vdir, float& t0) {
   // Vector L = sphere.center() - orig;
   __m128 vc = _mm_load_ps(sphere.center().data());
-  __m128 vorig = _mm_load_ps(orig.data());
   __m128 vL = _mm_sub_ps(vc, vorig);
 
   // float tca = L * dir;
-  __m128 vdir = _mm_load_ps(dir.data());
-  __m128 vtca = _mm_dp_ps(vL, vdir, 0x0FF);
-  _mm_store_ps(buf, vtca);
-  float tca = buf[0];
+  __m128 vtca = _mm_dp_ps(vL, vdir, 0xFF);
 
   // float d2 = L * L - tca * tca;
-  __m128 vLdp = _mm_dp_ps(vL, vL, 0x0FF);
-  _mm_store_ps(buf, vLdp);
-  float d2 = buf[0] - tca * tca;
+  __m128 vLdp = _mm_dp_ps(vL, vL, 0xFF);
+  float d2 = vLdp.m128_f32[0] - vtca.m128_f32[0] * vtca.m128_f32[0];
 
   if (d2 > sphere.radius()* sphere.radius()) {
     return false;
   }
 
   float thc = sqrtf(sphere.radius() * sphere.radius() - d2);
-  t0 = tca - thc;
-  float t1 = tca + thc;
+  t0 = vtca.m128_f32[0] - thc;
+  float t1 = vtca.m128_f32[0] + thc;
   if (t0 < 0) {
     t0 = t1;
   }
@@ -96,37 +86,50 @@ static bool RayIntersect(const Sphere& sphere, const Vector& orig,
   return true;
 }
 
-static bool SceneIntersect(const Vector& orig, const Vector& dir,
+static bool SceneIntersect(const __m128& vorig, const __m128& vdir,
                            const std::vector<Sphere>& spheres,
-                           Vector& hit, Vector& norm,
+                           __m128& vhit, __m128& vnorm,
                            Material& material) {
   float spheres_dist = std::numeric_limits<float>::max();
   for (size_t i = 0; i < spheres.size(); i++) {
     float dist_i = 0.0f;
-    if (RayIntersect(spheres[i], orig, dir, dist_i) && dist_i < spheres_dist) {
+    if (RayIntersect(spheres[i], vorig, vdir, dist_i) &&
+        dist_i < spheres_dist) {
       spheres_dist = dist_i;
-      hit = orig + dir * dist_i;
-      norm = (hit - spheres[i].center()).Normalize();
+      
+      // hit = orig + dir * dist_i;
+      vhit = _mm_add_ps(vorig, _mm_mul_ps(vdir, _mm_set_ps1(dist_i)));
+
+      //norm = (hit - spheres[i].center()).Normalize();
+      vnorm = Normalize(
+        _mm_sub_ps(vhit, _mm_load_ps(spheres[i].center().data())));
+
       material = spheres[i].material();
     }
   }
 
   float checkerboard_dist = std::numeric_limits<float>::max();
-  if (fabsf(dir.y()) > 1e-3f) {
-    float d = -(orig.y() + 4.0f) / dir.y();
-    Vector pt = orig + dir * d;
-    if (d > 0 && fabs(pt.x()) < 10.0f &&
-        pt.z() < -10.0f && pt.z() > -30.0f &&
+  if (fabsf(vdir.m128_f32[1]) > 1e-3f) {
+    float d = -(vorig.m128_f32[1] + 4.0f) / vdir.m128_f32[1];
+    
+    // Vector pt = orig + dir * d;
+    __m128 vpt = _mm_add_ps(vorig, _mm_mul_ps(vdir, _mm_set_ps1(d)));
+    
+    if (d > 0 && fabs(vpt.m128_f32[0]) < 10.0f &&
+        vpt.m128_f32[2] < -10.0f && vpt.m128_f32[2] > -30.0f &&
         d < spheres_dist) {
       checkerboard_dist = d;
-      hit = pt;
-      norm = Vector(0.0f, 1.0f, 0.0f);
+      //hit = pt;
+      vhit = vpt;
+      vnorm = _mm_set_ps(0.0f, 0.0f, 1.0f, 0.0f);
       material.SetDiffuseColor(
-        (static_cast<int>(0.5f * hit.x() + 1000.0f) +
-        (static_cast<int>(0.5f * hit.z())) & 1) ?
+        (static_cast<int>(0.5f * vhit.m128_f32[0] + 1000.0f) +
+        (static_cast<int>(0.5f * vhit.m128_f32[2])) & 1) ?
         Vector(0.3f, 0.3f, 0.3f) : Vector(0.3f, 0.2f, 0.1f));
     }
   }
+
+
   return std::min(spheres_dist, checkerboard_dist) < 1000.0f;
 }
 
@@ -138,14 +141,28 @@ static Vector CastRay(const Vector& background,
   Vector point, norm;
   Material material;
 
-  if (depth > 4 || !SceneIntersect(orig, dir, spheres,
-                                   point, norm, material)) {
+  __m128 vorig = _mm_load_ps(orig.data());
+  __m128 vdir = _mm_load_ps(dir.data());
+  __m128 vpoint = _mm_set_ps1(0.0f);
+  __m128 vnorm = _mm_set_ps1(0.0f);
+
+  if (depth > 4 || !SceneIntersect(vorig, vdir, spheres,
+                                   vpoint, vnorm, material)) {
     return background;
   }
 
-  Vector reflect_dir = Reflect(dir, norm).Normalize();
-  Vector refract_dir = Refract(dir, norm,
-                               material.refractive_index()).Normalize();
+  _mm_store_ps(point.data(), vpoint);
+  _mm_store_ps(norm.data(), vnorm);
+
+  __m128 vreflect_dir = Normalize(Reflect(vdir, vnorm));
+  Vector reflect_dir;
+  _mm_store_ps(reflect_dir.data(), vreflect_dir);
+
+  __m128 vrefract_dir = Normalize(Refract(vdir, vnorm, material.refractive_index()));
+  Vector refract_dir;
+  _mm_store_ps(refract_dir.data(), vrefract_dir);
+
+
   Vector reflect_orig = reflect_dir * norm < 0 ?
     point - norm * 1e-3f : point + norm * 1e-3f;
   Vector refract_orig = refract_dir * norm < 0 ?
@@ -164,16 +181,33 @@ static Vector CastRay(const Vector& background,
       point - norm * 1e-3f : point + norm * 1e-3f;
     Vector shadow_pt, shadow_n;
     Material tmpmaterial;
-    if (SceneIntersect(shadow_orig, light_dir, spheres,
-                       shadow_pt, shadow_n, tmpmaterial) &&
-                       (shadow_pt - shadow_orig).norm() < light_distance) {
+
+    __m128 vshadow_orig = _mm_load_ps(shadow_orig.data());
+    __m128 vlight_dir = _mm_load_ps(light_dir.data());
+    __m128 vshadow_pt = _mm_set_ps1(0.0f);
+    __m128 vshadow_n = _mm_set_ps1(0.0f);
+
+    bool intersected = SceneIntersect(vshadow_orig, vlight_dir, spheres,
+                                      vshadow_pt, vshadow_n, tmpmaterial);
+
+    _mm_store_ps(shadow_pt.data(), vshadow_pt);
+    _mm_store_ps(shadow_n.data(), vshadow_n);
+
+    if (intersected && ((shadow_pt - shadow_orig).norm() < light_distance)) {
       continue;
     }
 
     diffuse_light_intensity += lights[i].intensity() *
       std::max(0.f, light_dir * norm);
+
+    Vector mlight_dir = -light_dir;
+    __m128 vmlight_dir = _mm_load_ps(mlight_dir.data());
+    __m128 vreflect = Reflect(vmlight_dir, vnorm);
+    Vector reflect;
+    _mm_store_ps(reflect.data(), vreflect);
+
     specular_light_intensity +=
-      powf(std::max(0.0f, -Reflect(-light_dir, norm) * dir),
+      powf(std::max(0.0f, -reflect * dir),
            material.specular_exponent()) * lights[i].intensity();
   }
 

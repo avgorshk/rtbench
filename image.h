@@ -93,6 +93,7 @@ inline bool Compare(const std::vector<Vector>& output, const char* reference) {
   for (size_t i = 0; i < normalized.size(); ++i) {
     float diff = (normalized[i] - image[i]).norm();
     if (diff > kEps) {
+      std::cout << "(" << i / w << ", " << i % w << ")...";
       return false;
     }
   }
