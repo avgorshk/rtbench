@@ -1,4 +1,4 @@
-#include "render_avx2.h"
+#include "render_sequential.h"
 
 #include <algorithm>
 #include <vector>
@@ -7,8 +7,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-namespace host {
-namespace avx2 {
+namespace sequential {
 
 static Vector Reflect(const Vector& i, const Vector& n) {
   return i - n * 2.0f * (i * n);
@@ -114,7 +113,7 @@ static Vector CastRay(const Vector& background,
     Material tmpmaterial;
     if (SceneIntersect(shadow_orig, light_dir, spheres,
                        shadow_pt, shadow_n, tmpmaterial) &&
-                       (shadow_pt - shadow_orig).norm() < light_distance) {
+                       ((shadow_pt - shadow_orig).norm() < light_distance)) {
       continue;
     }
 
@@ -139,7 +138,6 @@ void Render(const std::vector<Sphere>& spheres,
   assert(image.size() == w * h);
   const float fov = static_cast<float>(M_PI / 3.0);
 
-  //#pragma omp parallel for
   for (int i = 0; i < h; ++i) {
     for (int j = 0; j < w; ++j) {
       float dir_x = (j + 0.5f) - w / 2.0f;
@@ -154,5 +152,4 @@ void Render(const std::vector<Sphere>& spheres,
   }
 }
 
-} // namespace avx2
-} // namespace host
+} // namespace sequential

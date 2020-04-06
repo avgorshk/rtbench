@@ -9,7 +9,6 @@
 #include <immintrin.h>
 #include <xmmintrin.h>
 
-namespace host {
 namespace sse {
 
 inline __m128 Normalize(const __m128& v) {
@@ -224,4 +223,3 @@ void Render(const std::vector<Sphere>& spheres,
 }
 
 } // namespace sse
-} // namespace host

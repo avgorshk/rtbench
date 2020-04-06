@@ -1,5 +1,5 @@
-#ifndef RTBENCH_IMAGE_H_
-#define RTBENCH_IMAGE_H_
+#ifndef RTBENCH_COMMON_IMAGE_H_
+#define RTBENCH_COMMON_IMAGE_H_
 
 #include <algorithm>
 #include <vector>
@@ -79,7 +79,8 @@ inline bool Compare(const std::vector<Vector>& output, const char* reference) {
   int w = 0, h = 0;
   bool loaded = image::Load(reference, w, h, image);
   if (!loaded) {
-    std::cout << "Reference output file was not found" << std::endl;
+    std::cout << "Reference output file was not found: " <<
+      reference << std::endl;
     return false;
   }
 
@@ -103,4 +104,4 @@ inline bool Compare(const std::vector<Vector>& output, const char* reference) {
 
 } // image
 
-#endif // RTBENCH_IMAGE_H_
+#endif // RTBENCH_COMMON_IMAGE_H_

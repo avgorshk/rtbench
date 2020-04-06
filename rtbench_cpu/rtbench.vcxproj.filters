@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="external">
+      <UniqueIdentifier>{94492c53-8337-43e5-a2cb-80a4dd2c82c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{5effb709-8cb9-4035-a19c-7dadb4fb481c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cc" />
+    <ClCompile Include="render_baseline.cc" />
+    <ClCompile Include="render_sequential.cc" />
+    <ClCompile Include="render_sse.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\external\stb_image.h">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\stb_image_write.h">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\image.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\light.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\material.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\sphere.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\vector.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="render_baseline.h" />
+    <ClInclude Include="render_sequential.h" />
+    <ClInclude Include="render_sse.h" />
+    <ClInclude Include="..\common\scene.h">
+      <Filter>common</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

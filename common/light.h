@@ -1,5 +1,5 @@
-#ifndef RTBENCH_LIGHT_H_
-#define RTBENCH_LIGHT_H_
+#ifndef RTBENCH_COMMON_LIGHT_H_
+#define RTBENCH_COMMON_LIGHT_H_
 
 #include "vector.h"
 
@@ -21,4 +21,4 @@ class Light {
   float intensity_;
 };
 
-#endif // RTBENCH_LIGHT_H_
+#endif // RTBENCH_COMMON_LIGHT_H_

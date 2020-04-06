@@ -7,7 +7,6 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-namespace host {
 namespace baseline {
 
 static Vector Reflect(const Vector& i, const Vector& n) {
@@ -155,4 +154,3 @@ void Render(const std::vector<Sphere>& spheres,
 }
 
 } // namespace baseline
-} // namespace host

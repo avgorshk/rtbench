@@ -1,5 +1,5 @@
-#ifndef RTBENCH_MATERIAL_H_
-#define RTBENCH_MATERIAL_H_
+#ifndef RTBENCH_COMMON_MATERIAL_H_
+#define RTBENCH_COMMON_MATERIAL_H_
 
 #include "vector.h"
 
@@ -41,4 +41,4 @@ private:
   float specular_exponent_;
 };
 
-#endif // RTBENCH_MATERIAL_H_
+#endif // RTBENCH_COMMON_MATERIAL_H_

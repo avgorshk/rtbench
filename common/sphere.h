@@ -1,5 +1,5 @@
-#ifndef RTBENCH_SPHERE_H_
-#define RTBENCH_SPHERE_H_
+#ifndef RTBENCH_COMMON_SPHERE_H_
+#define RTBENCH_COMMON_SPHERE_H_
 
 #include "material.h"
 
@@ -26,4 +26,4 @@ private:
   float radius_;
 };
 
-#endif // RTBENCH_SPHERE_H_
+#endif // RTBENCH_COMMON_SPHERE_H_

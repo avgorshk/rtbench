@@ -1,5 +1,5 @@
-#ifndef RTBENCH_VECTOR_H_
-#define RTBENCH_VECTOR_H_
+#ifndef RTBENCH_COMMON_VECTOR_H_
+#define RTBENCH_COMMON_VECTOR_H_
 
 #include <cmath>
 
@@ -88,4 +88,4 @@ class Vector {
   };
 };
 
-#endif //RTBENCH_VECTOR_H_
+#endif //RTBENCH_COMMON_VECTOR_H_

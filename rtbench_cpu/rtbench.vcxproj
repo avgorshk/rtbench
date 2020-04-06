@@ -87,6 +87,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,6 +119,7 @@
       <OpenMPSupport>true</OpenMPSupport>
       <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
       <FloatingPointModel>Precise</FloatingPointModel>
+      <AdditionalIncludeDirectories>..</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -126,26 +128,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="host\render_avx2.cc" />
-    <ClCompile Include="host\render_baseline.cc" />
-    <ClCompile Include="host\render_sequential.cc" />
-    <ClCompile Include="host\render_sse.cc" />
     <ClCompile Include="main.cc" />
+    <ClCompile Include="render_baseline.cc" />
+    <ClCompile Include="render_sequential.cc" />
+    <ClCompile Include="render_sse.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="device.h" />
-    <ClInclude Include="external\stb_image.h" />
-    <ClInclude Include="external\stb_image_write.h" />
-    <ClInclude Include="host\host.h" />
-    <ClInclude Include="host\render_avx2.h" />
-    <ClInclude Include="host\render_baseline.h" />
-    <ClInclude Include="host\render_sequential.h" />
-    <ClInclude Include="host\render_sse.h" />
-    <ClInclude Include="image.h" />
-    <ClInclude Include="light.h" />
-    <ClInclude Include="material.h" />
-    <ClInclude Include="sphere.h" />
-    <ClInclude Include="vector.h" />
+    <ClInclude Include="..\common\image.h" />
+    <ClInclude Include="..\common\light.h" />
+    <ClInclude Include="..\common\material.h" />
+    <ClInclude Include="..\common\scene.h" />
+    <ClInclude Include="..\common\sphere.h" />
+    <ClInclude Include="..\common\vector.h" />
+    <ClInclude Include="..\external\stb_image.h" />
+    <ClInclude Include="..\external\stb_image_write.h" />
+    <ClInclude Include="render_baseline.h" />
+    <ClInclude Include="render_sequential.h" />
+    <ClInclude Include="render_sse.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

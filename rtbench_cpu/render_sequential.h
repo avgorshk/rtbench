@@ -1,12 +1,11 @@
-#ifndef RTBENCH_HOST_RENDER_SEQUENTIAL_H_
-#define RTBENCH_HOST_RENDER_SEQUENTIAL_H_
+#ifndef RTBENCH_RENDER_SEQUENTIAL_H_
+#define RTBENCH_RENDER_SEQUENTIAL_H_
 
 #include <vector>
 
-#include "../light.h"
-#include "../sphere.h"
+#include "common/light.h"
+#include "common/sphere.h"
 
-namespace host {
 namespace sequential {
 
 void Render(const std::vector<Sphere>& spheres,
@@ -15,6 +14,5 @@ void Render(const std::vector<Sphere>& spheres,
             int w, int h);
 
 } // namespace sequential
-} // namespace host
 
-#endif // RTBENCH_HOST_RENDER_SEQUENTIAL_H_
+#endif // RTBENCH_RENDER_SEQUENTIAL_H_
