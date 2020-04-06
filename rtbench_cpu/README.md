@@ -1,5 +1,11 @@
 # RTBench for CPU
 
+## Build
+Use MS Visual Studio 2019
+
+## Run
+$ rtbech -v <version> [-i <input.jpg>] [-r <reference.png>] [-o <output.png>]
+
 ## Results
 | Device | Compiler | Version #1 | Version #2 | FPS Rate #1 | FPS Rate #2 | Speed-up |
 |--------|----------|------------|------------|-------------|-------------|----------|
